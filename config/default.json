@@ -1,6 +1,6 @@
 {
   "Api": {
     "url": "localhost",
-    "port": "9090"
+    "port": "8080"
   }
 }
