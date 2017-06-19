@@ -8,7 +8,7 @@ let jwtStrategy = (passport) => {
 	let opts = {}
 	opts.jwtFromRequest = ExtractJwt.fromAuthHeader()
 	opts.secretOrKey = config.Api.secret
-	passport.use(new Strategy(opts, (payload, done) => {
+	passport.use('jwt', new Strategy(opts, (payload, done) => {
 		User.findById(payload._id, (err, user) => {
 			if (err) return done(err, false)
 

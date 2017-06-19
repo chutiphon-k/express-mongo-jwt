@@ -8,7 +8,7 @@ import morgan from 'morgan'
 import passport from 'passport'
 
 import routes from 'routes'
-import { JwtStrategy } from 'strategies'
+import { JwtStrategy, FacebookStrategy } from 'strategies'
 
 const app = express()
 
@@ -27,14 +27,19 @@ function errorNotification (err, str, req) {
 	}
 }
 
-JwtStrategy(passport)
-
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(compression())
 app.use(cors())
 app.use(passport.initialize())
 app.use(morgan('dev'))
+
+JwtStrategy(passport)
+FacebookStrategy(passport)
+
 app.use('/', routes)
+
+app.set('views', __dirname + '/views')
+app.set('view engine', 'ejs')
 
 export default app
