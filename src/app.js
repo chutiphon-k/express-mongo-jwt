@@ -39,7 +39,4 @@ FacebookStrategy(passport)
 
 app.use('/', routes)
 
-app.set('views', __dirname + '/views')
-app.set('view engine', 'ejs')
-
 export default app

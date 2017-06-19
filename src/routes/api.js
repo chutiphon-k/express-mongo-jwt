@@ -1,24 +1,32 @@
 import { Router } from 'express'
-import config from 'config'
-import jwt from 'jsonwebtoken'
 import passport from 'passport'
 
 import { User } from 'models'
+import { generateToken } from 'utilities'
 
 const router = Router()
 
-let getToken = (user) => {
-	let { _id, username } = user
-	let token = jwt.sign({ _id, username }, config.Api.secret, {
-		expiresIn: 60 * 60 * 24 * 30
+router.get('/auth/facebook', passport.authenticate('facebook-token', { session: false }), (req, res) => {
+	res.json({success: true, token: generateToken(req.user)})
+})
+
+router.post('/auth/jwt', (req, res) => {
+	let { username, password } = req.body
+	User.findOne({ username }, (err, user) => {
+		if (err) return err
+
+		if (!user) {
+			res.send({ success: false, message: 'Authentication failed. User not found.' })
+		} else {
+			user.comparePassword(password, (err, isMatch) => {
+				if (isMatch && !err) {
+					res.json({success: true, token: generateToken(user)})
+				} else {
+					res.send({success: false, message: 'Authentication failed. Password did not match.'})
+				}
+			})
+		}
 	})
-	return token
-}
-
-router.get('/auth/facebook', passport.authenticate('facebook', { session: false, successReturnToOrRedirect: '/' }))
-
-router.get('/auth/facebook/callback', passport.authenticate('facebook', { session: false, failureRedirect: '/auth/facebook' }), (req, res) => {
-	res.json({success: true, token: `JWT ${getToken(req.user)}`})
 })
 
 router.post('/register', (req, res) => {
@@ -35,25 +43,6 @@ router.post('/register', (req, res) => {
 	}
 })
 
-router.post('/auth/jwt', (req, res) => {
-	let { username, password } = req.body
-	User.findOne({ username }, (err, user) => {
-		if (err) return err
-
-		if (!user) {
-			res.send({ success: false, message: 'Authentication failed. User not found.' })
-		} else {
-			user.comparePassword(password, (err, isMatch) => {
-				if (isMatch && !err) {
-					res.json({success: true, token: `JWT ${getToken(user)}`})
-				} else {
-					res.send({success: false, message: 'Authentication failed. Password did not match.'})
-				}
-			})
-		}
-	})
-})
-
 router.post('/change', passport.authenticate('jwt', { session: false }), (req, res) => {
 	let { username, password } = req.body
 	User.findById(req.user._id, (err, user) => {
@@ -68,10 +57,11 @@ router.post('/change', passport.authenticate('jwt', { session: false }), (req, r
 	})
 })
 
-router.get('/data', passport.authenticate('jwt', { session: false }), (req, res) => {
+router.get('/protected', passport.authenticate('jwt', { session: false }), (req, res) => {
+	let { _id, username } = req.user
 	res.json({
-		_id: req.user._id,
-		username: req.user.username
+		_id,
+		username
 	})
 })
 

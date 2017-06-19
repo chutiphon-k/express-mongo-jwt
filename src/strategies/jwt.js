@@ -4,7 +4,7 @@ import moment from 'moment'
 
 import { User } from 'models'
 
-let jwtStrategy = (passport) => {
+let JwtStrategy = (passport) => {
 	let opts = {}
 	opts.jwtFromRequest = ExtractJwt.fromAuthHeader()
 	opts.secretOrKey = config.Api.secret
@@ -22,4 +22,4 @@ let jwtStrategy = (passport) => {
 	}))
 }
 
-export default jwtStrategy
+export default JwtStrategy

@@ -1,8 +1,12 @@
 {
   "Api": {
     "url": "localhost",
-    "port": "8080",
+    "port": "9090",
     "database": "mongodb://localhost:27017/jwt",
     "secret": "hello"
+  },
+  "Facebook": {
+    "clientID": "1559210274103122",
+    "clientSecret": "4a0a4715b7bd94d12b3409c6ce872bb3"
   }
 }
